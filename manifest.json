@@ -1,0 +1,19 @@
+{
+ "name": "東京電力の電力使用状況",
+ "version": "1.307",
+ "description": "東京電力の電力使用状況をお知らせします",
+ "background_page": "background.html",
+ "browser_action": {
+	 "default_icon": "images/icon_off.png", 
+	 "popup": "popup.html"
+  },
+  "icons": {
+    "16": "images/icon_16.png",
+    "32": "images/icon_32.png",
+    "64": "images/icon_64.png",
+    "128": "images/icon_128.png"
+  },
+  "permissions": [
+  "http://tepco-usage-api.appspot.com/*"
+  ]
+} 

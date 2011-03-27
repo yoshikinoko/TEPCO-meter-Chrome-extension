@@ -1,0 +1,1 @@
+Put icon image files here.Here is the useful images in Wikimedia.http://commons.wikimedia.org/wiki/File:Dialog-information.svg
