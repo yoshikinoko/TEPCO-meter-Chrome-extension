@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<script language="JavaScript" src="js/json2.js"></script>
+<script language="JavaScript" src="js/js.js"></script>
+<script language="JavaScript" src="js/jquery-1.6.min.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Language" content="ja" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<style type="text/css">
+#wrap{
+	display:none;
+}
+#mbx{
+	style="font-size: 9px;
+}
+.cp {
+	font-size: 9px;
+	margin-top:2px;
+	margin-bottom:1px;
+	text-align:center;
+}
+.pd {
+
+	font-size: 12px;
+	margin-top:2px;
+	margin-bottom:1px;
+	text-align:center;
+}
+#in {
+	float:left;
+}
+#tx {
+	float:left;
+	-webkit-border-radius: 6px;
+	text-align:center;
+	margin-left:10px;
+	margin-top:2px;
+	padding-top: 2px;
+	padding-right: 3px;
+	padding-bottom: 2px;
+	padding-left: 1px;
+}
+#us {
+	width: 68px;
+	float:left;
+}
+#rt {
+	width : 45px;
+	float:left;
+}
+.sc{
+	font-size: 22px;
+	margin-bottom:0px;
+	margin-top:0px;
+}
+#pe{
+	font-weight:bold;
+}
+.kw{
+	font-size: 8px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:1px;
+	margin-bottom:1px;
+	width:60px;
+}
+#graph {
+	float:left;
+	margin: 0px;
+	padding: 0px;
+}
+.tds{
+	-webkit-border-radius: 6px;
+	width:118px;
+	margin-left:10px;
+	margin-top:2px;
+	padding-top:1px;
+	padding-bottom:0px;
+}
+
+</style>
+<script type="text/javascript">
+$(window).load(function() {
+	getMeterVal(true);
+});
+</script>
+</head>
+<body>
+<div id="mbx">
+<table width="323" border="0" cellspacing="0" cellpadding="0">
+<tr><td align="center"><span id="msg"></span><img src='images/icon_off.png'/>
+</td>
+</tr>
+</table>
+</div>
+<div id="wrap">
+<table width="410" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="272" rowspan="2" valign="middle">
+    
+    <table width="268" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center"><span class="pd" id="dataUpdateTime">&nbsp;</span></td>
+  </tr>
+  <tr>
+    <td>
+    <!--bit.ly/setsuden_chrome_tepco_meter_jump -->
+	<a href='http://bit.ly/setsuden_chrome_tepco_meter_jump' target='_blank'>
+    	<canvas id="currentGraph" width="266" height="35"></canvas>
+    </a>
+</td>
+  </tr>
+</table>
+</td>
+    <td width="138" align="left" valign="top">
+    <div id="tx" class="calmfc">
+<div id="us">
+<div class="cp">使用量</div>
+<div class="sc">
+<div class="kw" id="usb"><span id="usage">&nbsp;</span>万KW</div>
+<div class="kw"><span id="capacity">&nbsp;</span>万KW</div>
+</div>
+</div>
+<div id="rt">
+<div class="cp">使用率</div>
+<div class="sc"><span id="pe">&nbsp;</span><span style="font-size: 8px;">%</span></div>
+</div>
+</div>
+</td>
+</tr>
+  <tr>
+    <td><div class="cp tds" id="tdb"><span id="teiden">&nbsp;</span></div></td>
+  </tr>
+</table>
+</div>
+</body>
+</html>

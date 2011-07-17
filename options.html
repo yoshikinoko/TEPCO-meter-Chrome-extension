@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>東京電力の電力使用状況 オプション</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script language="JavaScript" src="js/json2.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/js.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/jquery-1.6.min.js" type="text/javascript"></script>
+<style> 
+body {
+  font-family:helvetica, arial, sans-serif;
+  font-size:80%;
+  margin:10px;
+}
+#header {
+  padding-bottom:1.5em;
+  padding-top:1.5em;
+}
+#header h1 {
+  font-size: 156%;
+  display:inline;
+  padding-bottom:43px;
+  padding-left:75px;
+  padding-top:40px;
+  background:url(images/icon_128.png) no-repeat;
+  background-size:67px;
+  background-position:1px 18px;
+}
+.section-header {
+  background:#ebeff9;
+  border-top:1px solid #b5c7de;
+  font-size:99%;
+  padding:3px 0 2px 5px;
+  font-weight:bold;
+  margin-bottom:1em;
+  margin-top:4em;
+}
+.section-header.first {
+  margin-top:1em;
+} 
+#footer {
+  margin-top:4em;
+}
+.savemessage{
+	color:#666;
+}
+</style> 
+</head>
+<script type="text/javascript">
+window.onload = function(){
+	loadEvents();
+};
+var saveMsg = "保存しました";
+var resetMsg = "リセットしました";
+var saveMsgShowTime = 750;
+const default_hot_th = 80;
+const default_calm_th = 40;
+const default_show_number_on_badge = true;
+var Config = {
+hot_th:80,
+calm_th:40,
+show_number_on_badge:true
+};
+var background_graph;
+var graph_button;
+graph_drag_button = 0;
+
+function resetAndSaveOptions(){
+	Config.show_number_on_badge = default_show_number_on_badge;
+	Config.hot_th = default_hot_th;
+	Config.calm_th = default_calm_th;
+	localStorage.TepcoMeterConfig = JSON.stringify(Config);
+	$(".reset_button").html(resetMsg);
+	setTimeout(function() {
+		$("span.savemessage").html("");
+	}, saveMsgShowTime);
+	restore_options();
+}
+function save_options() {
+	localStorage.TepcoMeterConfig = JSON.stringify(Config);
+	restore_options();
+}
+function updateShowNumberOnBadge(){
+	var showNumber = document.getElementById("show_number_on_badge_val");
+	if(showNumber.checked){
+		Config.show_number_on_badge = true;
+	}else{
+		Config.show_number_on_badge = false;
+	}
+}
+function loadEvents(){
+	restore_options();
+	setGraphEvents();
+}
+$(function(){
+	$(":checkbox").click(function(){
+		$("label").css("font-weight","");
+		$("label[for='"+$(this).attr("id")+"']").css("font-weight","bold");
+		$("span."+$(this).attr('id')+"").html(saveMsg);	
+		setTimeout(function() {
+			$("label").css("font-weight","");
+			$("span.savemessage").html("");
+	  	}, saveMsgShowTime);
+		updateShowNumberOnBadge();
+		save_options();
+	})
+})
+function showGraphSaveMessage(){
+		if(graph_drag_button > 0){
+		$(".bulb_color").html(saveMsg);
+		setTimeout(function() {
+			$("label").css("font-weight","");
+			$("span.savemessage").html("");
+		}, saveMsgShowTime);
+		save_options();
+	}
+}
+
+function restore_options() {
+	var showNumber = document.getElementById("show_number_on_badge_val");
+	if (localStorage.TepcoMeterConfig) {
+		Config = JSON.parse(localStorage.TepcoMeterConfig);
+		if(Config.show_number_on_badge){
+			showNumber.checked = true;
+		}else{
+			showNumber.checked = false;
+		}	
+	}
+	loadImageAndDrawControlGraph();
+	getMeterVal(false);
+}
+function adjustXY(e) {
+	var rect = e.target.getBoundingClientRect();
+	mouseX = e.clientX - rect.left;
+	mouseY = e.clientY - rect.top;
+}
+function graph_button_clicked(e){
+	//use after Adjust X
+	var calm_wid = graph_length * Config.calm_th / 100;
+	var hot_wid = graph_length *(Config.hot_th - Config.calm_th) / 100
+	
+	if(graph_ofx + calm_wid - button_ofx < mouseX &&
+ 		mouseX < graph_ofx + calm_wid - button_ofx + graph_button.width && 
+		graph_ofy < mouseY && mouseY < graph_height){
+		return 1;
+	}
+	if(graph_ofx + hot_wid + calm_wid - button_ofx  < mouseX &&
+ 		mouseX < graph_ofx + hot_wid + calm_wid - button_ofx + graph_button.width && 
+		graph_ofy < mouseY && mouseY < graph_height){
+		return 2;
+	}
+	
+	return 0;
+}
+
+
+function setGraphEvents(){
+	var canvas = document.getElementById('bulb_color');
+	if ( ! canvas || ! canvas.getContext ) return false;
+	var ctx = canvas.getContext('2d');
+	canvas.addEventListener("mousemove", mouseMoveListner, false);
+	canvas.addEventListener("mousedown", mouseButtonDownListner, false);
+	canvas.addEventListener("mouseup", mouseButtonUpListner, false);
+	canvas.addEventListener("mouseout", mouseOutListner, false);
+}
+function mouseMoveListner(e) {
+	adjustXY(e);
+	if(graph_drag_button == 1){
+		new_calmth = Math.round(100 /snap_step * (mouseX - graph_ofx) /  graph_length) * snap_step;
+		if(0 < new_calmth && new_calmth < Config.hot_th){
+			Config.calm_th = new_calmth;
+		}
+	}else if(graph_drag_button == 2){
+		new_hotth = Math.round(100 /snap_step * (mouseX - graph_ofx) /  graph_length) * snap_step;
+		if(Config.calm_th < new_hotth && new_hotth < 100){
+			Config.hot_th = new_hotth;
+		}
+	}
+//	drawControlGraph();
+loadImageAndDrawControlGraph();
+}
+function mouseButtonDownListner(e) {
+	adjustXY(e);
+	graph_drag_button = graph_button_clicked(e);
+}
+function mouseButtonUpListner(e) {
+	showGraphSaveMessage();	
+	graph_drag_button = 0;
+}
+function mouseOutListner(e) {
+	showGraphSaveMessage();
+	graph_drag_button = 0;
+}
+function loadImageAndDrawControlGraph(){
+	background_graph = new Image();
+	background_graph.src = "images/graph_back.png";
+	background_graph.onload = function(){	
+		graph_button = new Image();
+		graph_button.src = "images/graph_button.png";
+		graph_button.onload = function(){
+			drawControlGraph();
+		}
+	}
+	
+}
+
+function drawControlGraph(){
+	var canvas = document.getElementById("bulb_color");
+	var ctx = canvas.getContext("2d");
+	var calm_wid = graph_length * Config.calm_th / 100;
+	var hot_wid = graph_length *(Config.hot_th - Config.calm_th) / 100
+	var ptn = ctx.createPattern(background_graph,"no-repeat");
+   	ctx.fillStyle = ptn;
+	ctx.fillRect(0,0,canvas.width,canvas.height);
+	ctx.fillStyle = "rgba(124,217,70,0.6)";
+	ctx.fillRect (graph_ofx, graph_ofy, calm_wid, graph_height);
+	ctx.fillStyle = "rgba(252,206,68,0.6)";
+	ctx.fillRect (calm_wid + graph_ofx, graph_ofy, hot_wid, graph_height);
+	ctx.fillStyle = "rgba(204,15,12,0.6)";
+	ctx.fillRect (hot_wid + calm_wid + graph_ofx, graph_ofy,graph_length - (hot_wid + calm_wid), graph_height);
+	ctx.drawImage(graph_button,Math.round(graph_ofx + calm_wid - button_ofx), graph_ofy);
+	ctx.drawImage(graph_button,Math.round(graph_ofx + calm_wid + hot_wid - button_ofx), graph_ofy);
+}
+</script>
+<body>
+<div id="header"><h1>東京電力の電力使用状況 オプション</h1></div> 
+<div class="section-header first">アイコンの数値の表示</div> 
+<p>
+<label for="show_number_on_badge_val">アイコンの上に数値を表示する</label><input type="checkbox" id="show_number_on_badge_val" /><span class="show_number_on_badge_val savemessage"></span>
+</p>
+<div class="section-header first">電球の色</div> 
+<p>
+<canvas id="bulb_color" width="266" height="35"></canvas><br/><span class="bulb_color savemessage"></span>
+</p>
+<div class="section-header first">設定のリセット</div> 
+<p>
+<button onclick="resetAndSaveOptions()">設定をリセットする</button><span class="reset_button savemessage"></span>
+</p>
+</body>
+</html>
