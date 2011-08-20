@@ -1,6 +1,6 @@
 {
  "name": "東京電力の電力使用状況",
- "version": "1.500",
+ "version": "1.502",
  "description": "東京電力の電力使用状況をお知らせします",
  "background_page": "background.html",
  "browser_action": {

@@ -104,15 +104,13 @@ function getMeterVal(drawGraph){
 			var update_time_data = tepco_status.usage_updated.split(" ");
 			var date_time = update_time_data[0].split("-");
 			var up_time = update_time_data[1].split(":");
-		console.log("date"+	date_time[1] );
-		console.log("dateParseInt"+	parseInt(date_time[1]),10 );
 			update_time = new Date(parseInt(date_time[0],10),parseInt(date_time[1],10),parseInt(date_time[2],10),
 			parseInt(up_time[0],10),parseInt(up_time[1],10) - new Date().getTimezoneOffset(),parseInt(up_time[2],10));
 
-			tepco_status.year =update_time.getYear() + 1900;
+			tepco_status.year = update_time.getYear() + 1900;
 			tepco_status.month = update_time.getMonth();
 			tepco_status.day = update_time.getDate();
-						tepco_status.hour = update_time.getHours();
+			tepco_status.hour = update_time.getHours();
 			tepco_status.min =  update_time.getMinutes();
 			tepco_status.sec = update_time.getSeconds();
 
