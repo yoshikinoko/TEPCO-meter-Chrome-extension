@@ -2,6 +2,7 @@
 const requestTimeout = 1000 * 2;
 const api_uri = 'http://tepco-usage-api.appspot.com/latest.json';
 const api_uri_quick = 'http://tepco-usage-api.appspot.com/quick.txt';
+
 const intervalMin = 10;
 const hot_color = [208, 0, 24, 255];
 const fine_color = [255, 114, 21, 255];
@@ -74,10 +75,10 @@ function getMeterValQuick(drawGraph){
 			//HH:MM,XXXX,YYYY
 			var vals = xhr.responseText.split(",");
 			var time_val = vals[0].split(":");
-			tepco_status.hour =  parseInt(time_val[0]);
-			tepco_status.min =  parseInt(time_val[1]);
-			tepco_status.usage = parseInt(vals[1]);
-			tepco_status.capacity = parseInt(vals[2]);
+			tepco_status.hour =  parseInt(time_val[0],10);
+			tepco_status.min =  parseInt(time_val[1],10);
+			tepco_status.usage = parseInt(vals[1],10);
+			tepco_status.capacity = parseInt(vals[2],10);
 			updateTepcoUsage(drawGraph);
 		}
 	}
@@ -103,14 +104,15 @@ function getMeterVal(drawGraph){
 			var update_time_data = tepco_status.usage_updated.split(" ");
 			var date_time = update_time_data[0].split("-");
 			var up_time = update_time_data[1].split(":");
-	
-			update_time = new Date(parseInt(date_time[0]),parseInt(date_time[1]),parseInt(date_time[2]),
-			parseInt(up_time[0]),parseInt(up_time[1]) -new Date().getTimezoneOffset(),parseInt(up_time[2]));
+		console.log("date"+	date_time[1] );
+		console.log("dateParseInt"+	parseInt(date_time[1]),10 );
+			update_time = new Date(parseInt(date_time[0],10),parseInt(date_time[1],10),parseInt(date_time[2],10),
+			parseInt(up_time[0],10),parseInt(up_time[1],10) - new Date().getTimezoneOffset(),parseInt(up_time[2],10));
 
 			tepco_status.year =update_time.getYear() + 1900;
-			tepco_status.month =update_time.getMonth();
+			tepco_status.month = update_time.getMonth();
 			tepco_status.day = update_time.getDate();
-			tepco_status.hour = update_time.getHours();
+						tepco_status.hour = update_time.getHours();
 			tepco_status.min =  update_time.getMinutes();
 			tepco_status.sec = update_time.getSeconds();
 
@@ -171,10 +173,10 @@ function drawCurrentGraph(tepco_stat){
 	ctx.fillRect (low_wid + mid_wid + graph_ofx, graph_ofy,high_wid, graph_height);
 }
 function updateConnectionTime(tepco_stat){
-	var month = parseInt(tepco_stat.month);
-	var day = parseInt(tepco_stat.day);
-	var hour =  parseInt(tepco_stat.hour);
-	var min =  parseInt(tepco_stat.min);
+	var month = parseInt(tepco_stat.month,10);
+	var day = parseInt(tepco_stat.day,10);
+	var hour =  parseInt(tepco_stat.hour,10);
+	var min =  parseInt(tepco_stat.min,10);
 	
 	var dataUpdateTime = new String();
 	dataUpdateTime = "東京電力の電力使用状況 " + month + "月" + day + "日" + hour + "時" + min + "分更新";
